@@ -219,8 +219,16 @@ def add_memory():
     
     try:
         decisions = analyze_memory_signal(user_input)
+        if not decisions and user_input:
+            from app.memory import _looks_sensitive
+            if not _looks_sensitive(user_input):
+                decisions = [{
+                    "should_write": True,
+                    "target": "USER",
+                    "summary": f"User note: {user_input}",
+                    "confidence": 0.8
+                }]
         memory_writes = persist_memory(decisions)
-        
         return jsonify({
             'success': True,
             'memory_writes': memory_writes,

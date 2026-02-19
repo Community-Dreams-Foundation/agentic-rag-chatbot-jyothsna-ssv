@@ -154,9 +154,7 @@ Add your video link here:
 
 ## Video Walkthrough
 
-**Status:** Pending - Video walkthrough link will be added before submission deadline.
-
-[Video Walkthrough](https://example.com/video-link-placeholder)
+[Video Walkthrough](https://youtu.be/3l6f543Mj50)
 
 ## 4) Important
 Submissions missing the Participant Info block may be deprioritized during review.

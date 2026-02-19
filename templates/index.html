@@ -1154,8 +1154,9 @@ You can ask questions about your documents now.`;
                 
                 if (data.success) {
                     if (data.memory_writes && data.memory_writes.length > 0) {
+                        const decisions = data.decisions || [];
                         const memoryUpdates = data.memory_writes.map(w => {
-                            const decision = data.decisions.find(d => d.summary === w.summary && d.target === w.target);
+                            const decision = decisions.find(d => d.summary === w.summary && d.target === w.target);
                             const confidence = decision ? decision.confidence : w.confidence || 0.0;
                             return {
                                 target: w.target,
@@ -1320,8 +1321,9 @@ You can ask questions about your documents now.`;
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.memory_writes && data.memory_writes.length > 0) {
+                    const decisions = data.decisions || [];
                     const memoryUpdates = data.memory_writes.map(w => {
-                        const decision = data.decisions.find(d => d.summary === w.summary && d.target === w.target);
+                        const decision = decisions.find(d => d.summary === w.summary && d.target === w.target);
                         const confidence = decision ? decision.confidence : w.confidence || 0.0;
                         return {
                             target: w.target,

@@ -20,10 +20,11 @@ def _looks_sensitive(summary: str) -> bool:
 
 
 def _normalize_input(s: str) -> str:
-    """Strip BOM/invisible chars and normalize whitespace so regex matches reliably."""
+    """Strip BOM/invisible chars, normalize punctuation and whitespace so regex matches reliably."""
     if not s:
         return ""
     s = s.replace("\ufeff", "").replace("\u200b", "").replace("\u200c", "").replace("\u200d", "")
+    s = s.replace("\uff0e", ".").replace("\uff0c", ",")
     return " ".join(s.split())
 
 
@@ -38,27 +39,41 @@ def analyze_memory_signal(user_input: str):
     if role_match:
         role = role_match.group(1).strip().rstrip(".,")
         if role:
+            article = "an" if role[0].lower() in "aeiou" else "a"
             decisions.append({
                 "should_write": True,
                 "target": "USER",
-                "summary": f"User is a {role}",
+                "summary": f"User is {article} {role}",
                 "confidence": 0.9
             })
+    else:
+        role_short = re.search(r"\b(?:i\s+am|i'm)\s+(?!a[n]?\s)(.+?)\s*(?:\.|,|\s+and\s+|$)", lower, re.IGNORECASE)
+        if role_short:
+            role = text[role_short.start(1):role_short.end(1)].strip().rstrip(".,")
+            if role and len(role) >= 2:
+                article = "an" if role[0].lower() in "aeiou" else "a"
+                decisions.append({
+                    "should_write": True,
+                    "target": "USER",
+                    "summary": f"User is {article} {role}",
+                    "confidence": 0.9
+                })
 
     preference_match = re.search(r"\b(?:i\s+prefer|i'd\s+prefer)\s+(.+?)\s*(?:\.|,|\s+and\s+|$)", lower, re.IGNORECASE)
     if preference_match:
         preference = preference_match.group(1).strip().rstrip(".,")
         if preference:
+            preference_norm = preference.replace(" instead of ", " over ")
             decisions.append({
                 "should_write": True,
                 "target": "USER",
-                "summary": f"User prefers {preference}",
+                "summary": f"User prefers {preference_norm}",
                 "confidence": 0.85
             })
 
     org_match = re.search(r"\bour\s+team\s+(.+?)\s*(?:\.|,|$)", lower, re.IGNORECASE)
     if org_match:
-        insight = org_match.group(1).strip().rstrip(".,")
+        insight = text[org_match.start(1):org_match.end(1)].strip().rstrip(".,")
         if insight:
             decisions.append({
                 "should_write": True,
@@ -74,6 +89,14 @@ def analyze_memory_signal(user_input: str):
             "target": "USER",
             "summary": "",
             "confidence": 0.5
+        })
+
+    if not decisions and text and not _looks_sensitive(text):
+        decisions.append({
+            "should_write": True,
+            "target": "USER",
+            "summary": f"User note: {text}",
+            "confidence": 0.8
         })
 
     return decisions
