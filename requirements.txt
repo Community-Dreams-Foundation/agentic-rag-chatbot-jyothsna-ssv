@@ -1,0 +1,7 @@
+openai
+chromadb
+python-dotenv
+tiktoken
+flask
+# Optional for Feature A extras (PDF/HTML + hybrid retrieval):
+# pypdf beautifulsoup4 rank_bm25

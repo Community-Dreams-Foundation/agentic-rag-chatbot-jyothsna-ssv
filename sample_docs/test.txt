@@ -1,0 +1,13 @@
+This document describes a novel retrieval system for enterprise knowledge bases.
+
+## Main Contribution
+
+The main innovation is citation-based retrieval. It uses hybrid retrieval (BM25 + embeddings) to improve accuracy. The system achieves 85% precision on benchmark datasets.
+
+## Key Assumptions
+
+The system assumes limited context windows in large language models. It also assumes documents can be chunked into semantically coherent sections.
+
+## Limitations
+
+The current implementation does not support real-time updates. Chunking may split semantically related content if sections exceed 800 characters.

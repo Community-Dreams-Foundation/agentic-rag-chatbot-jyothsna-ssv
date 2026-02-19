@@ -1,6 +1,10 @@
-.PHONY: sanity
+.PHONY: sanity web
+
+PY := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
 sanity:
-	@echo "ERROR: You must implement 'make sanity' for your stack."
-	@echo "It must generate artifacts/sanity_output.json"
-	@exit 1
+	$(PY) -m app.sanity
+
+web:
+	$(PY) -m app.web
+

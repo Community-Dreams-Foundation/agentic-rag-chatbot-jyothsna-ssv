@@ -2,10 +2,13 @@
 # Agentic RAG Chatbot - Hackathon Challenge
 
 ## Overview
-Build a chatbot (Web App or CLI) that demonstrates how you’d ship an AI-first product feature:
-- **File-grounded Q&A (RAG)** with **citations**
-- **Durable memory** written to markdown
-- *(Optional)* **Safe compute** tool calling with Open-Meteo time series analysis
+This project implements a chatbot (web-based) that demonstrates how you’d ship an AI-first product feature:
+- **File-grounded Q&A (RAG)** with **citations** - Upload files, ask questions, get grounded answers with source citations
+- **Durable memory** written to markdown - Selective, high-signal memory persisted to `USER_MEMORY.md` and `COMPANY_MEMORY.md`
+
+**Implementation:** 
+- **Web App:** Upload any file (`.txt`, `.pdf`, `.html`, `.md`) via browser interface
+- **Testing:** Use `make sanity` to run end-to-end tests, or import functions (`app.rag`, `app.memory`) for programmatic use
 
 You may implement one feature or multiple. Partial implementations are acceptable.
 
@@ -20,7 +23,7 @@ You may implement one feature or multiple. Partial implementations are acceptabl
   Main instructions. You must update the **Participant Info**, **Quick Start** section and paste your **Video Walkthrough** link.
 
 - ARCHITECTURE.md  
-  Brief architecture overview (1–2 pages). Explain ingestion, retrieval/citations, memory logic, and optional sandbox.
+  Brief architecture overview (1–2 pages). Explain ingestion, retrieval/citations, and memory logic.
 
 - EVAL_QUESTIONS.md  
   Example questions you can use to test your bot and to guide your demo/video.
@@ -46,9 +49,9 @@ You may implement one feature or multiple. Partial implementations are acceptabl
 ---
 
 ## Participant Info (Required)
-- Full Name:
-- Email:
-- GitHub Username:
+- Full Name:Jyothsna Karuparthi
+- Email: karuparthi.jyothsna@gmail.com
+- GitHub Username:jyothsna-ssv
 
 ---
 
@@ -64,9 +67,11 @@ Users can:
 
 Suggested test data: arXiv PDFs/HTML (open access).
 
-Extra points:
+Extra points (implemented):
 - Hybrid retrieval (BM25 + embeddings), reranking, metadata filters
 - Smart chunking (section-aware, semantic boundaries)
+
+Extra points (not implemented):
 - Knowledge-graph flavored RAG
 
 ---
@@ -93,20 +98,9 @@ Use an internal decision structure like:
 
 ---
 
-### Feature C - Safe Python Sandbox + Open-Meteo (Optional)
-Spin up a Python environment using llm-sandbox (or similar isolation) and allow the chatbot to execute an analysis task by calling a public time series API.
+### Feature C - Not Implemented
 
-Use this API (no key required): Open-Meteo (historical + forecast weather time series).
-
-- **https://open-meteo.com/**
-
-The Chatbot should:
-- Call Open-Meteo for a location/time range
-- Retrieve time series data
-- Compute basic analytics (rolling averages, volatility, missingness checks, anomaly flags, etc.)
-- Return a clear explanation of findings
-
-We care about **safe execution boundaries + clean tool interface**, not perfect data science.
+Feature C is not implemented in this submission. This project focuses on Feature A (RAG) and Feature B (Memory) only.
 
 ---
 
@@ -117,7 +111,6 @@ Your repo must include:
 - A working demo flow (based on what you implemented):
   - Upload → index → ask questions with citations
   - Memory written into `USER_MEMORY.md` and `COMPANY_MEMORY.md`
-  - (Optional) Sandbox + Open-Meteo time series analysis
 - Basic tests or at least a small sanity-check script (preferred)
 - A short video walkthrough (5–10 minutes) demonstrating:
   - The working product end-to-end
@@ -161,7 +154,9 @@ Add your video link here:
 
 ## Video Walkthrough
 
-PASTE YOUR LINK HERE
+**Status:** Pending - Video walkthrough link will be added before submission deadline.
+
+[Video Walkthrough](https://example.com/video-link-placeholder)
 
 ## 4) Important
 Submissions missing the Participant Info block may be deprioritized during review.
@@ -224,7 +219,6 @@ We evaluate holistically:
 ### Security Mindset (Bonus)
 
 * Prompt-injection awareness in RAG
-* Sandbox isolation (if implementing Feature C)
 * Safe handling of external API calls
 
 ## Nice-to-Haves (Optional)
@@ -239,16 +233,105 @@ These are optional enhancements. They are not required, but can earn bonus point
 
 ---
 
-## Quick Start (YOU MUST FILL THIS IN)
+## Quick Start
 
-Provide exact commands a judge can run.
+### Prerequisites
+- Python 3.8+
+- OpenAI API key
 
-Example (replace with your real commands):
+### Setup (Clean Machine)
 
-```text
-# install dependencies
-# run the app
-# open UI or run CLI
+```bash
+# 1. Create virtual environment
+python3 -m venv .venv
+
+# 2. Activate virtual environment
+source .venv/bin/activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Set up environment variables
+echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
+```
+
+### Run Web Application
+
+```bash
+# Start the web server
+make web
+```
+
+Open your browser to: `http://localhost:5001`
+
+The web app provides:
+- File upload interface (drag & drop or click)
+- Interactive Q&A chat with citations
+- Memory functionality integrated into chat (writes to `USER_MEMORY.md` and `COMPANY_MEMORY.md`)
+
+### Run Sanity Check
+
+```bash
+# Run end-to-end test
+make sanity
+```
+
+This will:
+- Index `sample_docs/test.txt`
+- Ask a question and generate a grounded answer with citations
+- Write memory to `USER_MEMORY.md` and `COMPANY_MEMORY.md`
+- Generate `artifacts/sanity_output.json`
+
+To validate the output format:
+```bash
+bash scripts/sanity_check.sh
+```
+
+---
+
+## Usage: Two Ways to Test Feature A
+
+### Option 1: Programmatic Testing (uses `sample_docs/test.txt`)
+
+For programmatic testing, use the provided test file:
+
+```python
+from app.rag import index_document, answer_with_citations
+
+# Index the test document
+index_document('sample_docs/test.txt')
+
+# Ask a question
+result = answer_with_citations('What is this retrieval system designed for?')
+print(result['answer'])
+print(result['citations'])
+```
+
+Or run the sanity check:
+```bash
+make sanity
+```
+
+### Option 2: Web App (upload any file)
+
+For web app testing:
+1. Start the web server: `make web` (or `python -m app.web`)
+2. Open `http://localhost:5001` in your browser
+3. **Upload any file** (`.txt`, `.pdf`, `.html`, `.md`) via the upload interface
+4. Ask questions about the uploaded file
+5. Get grounded answers with citations
+
+The web app accepts uploaded files in these formats: `.txt`, `.pdf`, `.html`, `.md` - you don't need to use `test.txt` unless you want to.
+
+### Testing Feature B (Memory) Programmatically
+
+```python
+from app.memory import analyze_memory_signal, persist_memory
+
+# Analyze user input
+decisions = analyze_memory_signal("I am a Project Finance Analyst and I prefer weekly summaries.")
+memory_writes = persist_memory(decisions)
+print(memory_writes)  # Shows what was written to USER_MEMORY.md
 ```
 
 ---

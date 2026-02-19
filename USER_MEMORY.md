@@ -1,7 +1,4 @@
-# USER MEMORY
+# Memory Log
 
-<!--
-Append only high-signal, user-specific facts worth remembering.
-Do NOT dump raw conversation.
-Avoid secrets or sensitive information.
--->
+- User role: Project finance analyst.
+- User preference: Weekly summaries.

@@ -1,17 +1,19 @@
 import json
 import sys
 from pathlib import Path
-
 REQUIRED_TOP_LEVEL = ["implemented_features", "qa", "demo"]
 
 def fail(msg: str):
+    """Print error and exit so the sanity script knows validation failed."""
     print(f"VERIFY_FAIL: {msg}")
     sys.exit(1)
 
 def is_non_empty_str(x) -> bool:
+    """Used to check that required string fields in the JSON are actually filled in."""
     return isinstance(x, str) and len(x.strip()) > 0
 
 def main():
+    """Check sanity_output.json has the shape judges expect: implemented_features, qa with citations, demo.memory_writes."""
     if len(sys.argv) != 2:
         fail("Usage: verify_output.py <artifacts/sanity_output.json>")
 
@@ -37,12 +39,10 @@ def main():
     qa = data.get("qa")
     if not isinstance(qa, list):
         fail("qa must be a list")
-
     demo = data.get("demo")
     if not isinstance(demo, dict):
         fail("demo must be an object")
 
-    # If Feature A is claimed, enforce citations
     if "A" in feat_set:
         if len(qa) == 0:
             fail("Feature A claimed but qa is empty")
@@ -71,7 +71,6 @@ def main():
                 if not is_non_empty_str(c.get("snippet")):
                     fail(f"qa[{i}].citations[{j}].snippet missing/empty")
 
-    # If Feature B is claimed, require memory writes info
     if "B" in feat_set:
         user_mem = Path("USER_MEMORY.md")
         comp_mem = Path("COMPANY_MEMORY.md")
@@ -82,7 +81,6 @@ def main():
         if not isinstance(mem_writes, list) or len(mem_writes) == 0:
             fail("Feature B claimed but demo.memory_writes is empty")
 
-        # Optional: basic structure checks
         for i, w in enumerate(mem_writes):
             if not isinstance(w, dict):
                 fail(f"demo.memory_writes[{i}] must be an object")
@@ -92,6 +90,5 @@ def main():
                 fail(f"demo.memory_writes[{i}].summary missing/empty")
 
     print("VERIFY_OK")
-
 if __name__ == "__main__":
     main()
